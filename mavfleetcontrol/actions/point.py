@@ -1,4 +1,4 @@
-from mavcontrol.craft import Craft
+from mavfleetcontrol.craft import Craft
 from mavsdk import System
 from mavsdk import (OffboardError,Attitude, PositionNedYaw)
 import numpy as np
@@ -17,6 +17,7 @@ class FlyToPoint:
 
 	async def __call__(self, drone):
 
+		await drone.arm(coordinate=[0.0,0.0,0.0],attitude=[0.0,0.0,0.0])
 
 		print("-- Starting offboard")
 		try:
