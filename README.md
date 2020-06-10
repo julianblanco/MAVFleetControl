@@ -28,9 +28,12 @@ test@gcs-py:~ python3 muliple_aircraft_fly_to_point.py
 ```
 ## Architecture
 
-Withing craft.py exists a craft class that allows for crafts to be instantiated.
+Within craft.py exists a craft class that allows for crafts to be instantiated.
 Each craft is will have the ability to spawn awaitable (asyncio) threads and has locking feautures to allow for diffrent threads and routines to not stomp on eachother. 
 
-Actions are tasked to each aircraft via the add_action method. This adds the action to the aircraft's queue of actions to complete. The key diffrence between this and creating a mission for example is that the "actions" can be user defined and make use of offboard mode. For example the aircraft could be tasked with the following sequence [take off, loiter, go to point, perform loop-de-loop, return home].
+Actions are tasked to each aircraft via the add_action method. This adds the action to the aircraft's queue of actions to complete. The key diffrence between this and creating a mission for example is that the "actions" can be user defined (and therefore make use of offboard mode). For example the aircraft could be tasked with the following sequence [take off, loiter, go to point, perform loop-de-loop, return home].
 
-Becuase the actions are exposed at the highest level of the code, users can create code to script actions and prevent having to generate lots of manual lines of code and algortimally control the aircraft. (this was all writted so I could avoid using ROS)
+Becuase the actions are exposed at the highest level of the code, users can create code to script actions and prevent having to generate lots of manual lines of code and algortimcally control the aircraft. (this was all written so I could avoid using ROS)
+
+## Credit
+Major credit to Caleb Stewart for help with the threaded asyncio implementation 
