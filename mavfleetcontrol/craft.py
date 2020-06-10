@@ -8,15 +8,18 @@ import threading
 import functools
 import queue
 import asyncio
+import random
 
 from mavsdk import System
-from mavsdk import (OffboardError,Attitude, PositionNedYaw, PositionNed)
+from mavsdk.offboard import (Attitude, PositionNedYaw)
+from mavsdk.telemetry import (PositionNed)
 import numpy as np
 
 class Craft(threading.Thread):
 
-	def __init__ (self, connection_address: str, action: Callable[["Craft"], Awaitable[None]] = None):
+	def __init__ (self, name: str, connection_address: str, action: Callable[["Craft"], Awaitable[None]] = None):
 		super().__init__()
+		self.name: str = name
 		self.conn:System=None
 		self.address: str = connection_address
 		self.action: Callable[["Craft"], Awaitable[None]] = action
@@ -41,7 +44,7 @@ class Craft(threading.Thread):
 				try:
 					self.loop.run_until_complete(self.current_task)
 				except asyncio.CancelledError:
-					print('Command Cancelled')
+					pass
 
 				with self.current_task_lock:
 					self.current_task = None
@@ -75,8 +78,9 @@ class Craft(threading.Thread):
 
 	async def arm(self, coordinate:List[float] = None, attitude:List[float] = None):
 		try:
+			print(f"{self.name}: arming")
 			await self.conn.action.arm()
-			print("-- Setting initial setpoint")
+			print(f"{self.name}: Setting initial setpoint")
 			if coordinate is not None:
 				await self.conn.offboard.set_position_ned(PositionNedYaw(*coordinate, 0.0))
 			if attitude is not None:
@@ -85,12 +89,17 @@ class Craft(threading.Thread):
 		except Exception as bla:# add exception later
 			print(bla)
 
-	async def connect(self):	
-		self.conn = System()
+	async def connect(self):
+		self.conn = System(port=random.randint(1000,65535))
+
+		print(f"{self.name}: connecting")
 		await self.conn.connect(system_address=self.address)
 
+		print(f"{self.name}: waiting for connection")
 		async for state in self.conn.core.connection_state():
+			print(f"{self.name}: {state}")
 			if state.is_connected:
+				print(f"{self.name}: connected!")
 				break
 
 	@property

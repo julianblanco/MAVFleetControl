@@ -12,7 +12,7 @@ if __name__ == "__main__":
 	# loop = asyncio.get_event_loop()
 
 
-	drone = Craft("udp://:14541")
+	drone = Craft("drone", "udp://:14540")
 	# loop.run_until_complete(drone.arm(coordinate=[0.0,0.0,0.0],attitude=[0.0,0.0,0.0]))
 	drone.start()
 	drone.add_action(FlyToPoint(np.array([0,0,-2]),tolerance = 0.25))

@@ -1,6 +1,6 @@
 from mavfleetcontrol.craft import Craft
 from mavsdk import System
-from mavsdk import (OffboardError,Attitude, PositionNedYaw)
+from mavsdk.offboard import (OffboardError,Attitude, PositionNedYaw)
 import numpy as np
 
 def distance_between(p1,p2):
