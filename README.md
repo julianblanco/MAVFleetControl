@@ -1,5 +1,5 @@
 # MAVFleetControl
-This is a wrapper around MAVSDK-Python to simplify control of multiple craft
+This is a wrapper around MAVSDK-Python to simplify control of multiple craft.
 It uses threaded asynchronous python to ensure real time tasking of the crafts.
 
 It is intended for use with offboard mode and allows users to create high level interactions and send them to multiple aircraft (UDP or Serial).
