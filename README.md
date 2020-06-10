@@ -15,7 +15,7 @@ The current version of MAVSDK-Python does not allow for multiple aircraft becaus
 
 Start two px4_sitl aircraft in gazebo (other simultators / mavlink compatible autopilots may work but testing was done with Gazebo and PX4)
 
-Start string for px4 gazebo [see PX4 Documentation](https://dev.px4.io/master/en/simulation/multi_vehicle_simulation_gazebo.html)
+Start string for px4 gazebo. [See PX4 Documentation for troubleshooting](https://dev.px4.io/master/en/simulation/multi_vehicle_simulation_gazebo.html)
 
 ```
 test@gcs-pc:~ cd ~/path/to/px4/firmware/
@@ -26,7 +26,7 @@ Once the aircraft are spawned, open a new terminal and simply run the example in
 
 ```
 test@gcs-pc:~ cd ~/path/to/MAVFleetControl/
-test@gcs-py:~ python3 muliple_aircraft_fly_to_point.py
+test@gcs-pc:~ python3 muliple_aircraft_fly_to_point.py
 ```
 ## Architecture
 
