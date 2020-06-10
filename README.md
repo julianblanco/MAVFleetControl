@@ -10,20 +10,22 @@ It is intended for use with offboard mode and allows users to create high level 
 The current version of MAVSDK-Python does not allow for multiple aircraft because a user can not specify the desired port. Please use my fork (https://github.com/julianblanco/MAVSDK-Python) until the PR is hopefully merged.
 
 
-## Run the examples
+## Run the multiple aircraft example
 
-Start 2 aircraft in gazebo or your simulator of choice
 
-Start string for gazebo
+Start two px4_sitl aircraft in gazebo (other simultators / mavlink compatible autopilots may work but testing was done with Gazebo and PX4)
+
+Start string for px4 gazebo [see PX4 Documentation](https://dev.px4.io/master/en/simulation/multi_vehicle_simulation_gazebo.html)
 
 ```
 test@gcs-pc:~ cd ~/path/to/px4/firmware/
 test@gcs-pc:~ ./gazebo_sitl_multiple_run.sh -m iris -n 2
 ```
 
-Once the aircraft are spawned, simply run the example 
+Once the aircraft are spawned, open a new terminal and simply run the example in MAVFleetControl
 
 ```
+test@gcs-pc:~ cd ~/path/to/MAVFleetControl/
 test@gcs-py:~ python3 muliple_aircraft_fly_to_point.py
 ```
 ## Architecture
