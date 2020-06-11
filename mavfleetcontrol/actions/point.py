@@ -16,9 +16,9 @@ class FlyToPoint:
 		# self.master = None
 
 	async def __call__(self, drone):
+		# print(drone.conn.telemetry.armed)
 
 		await drone.arm(coordinate=[0.0,0.0,0.0],attitude=[0.0,0.0,0.0])
-
 		print("-- Starting offboard")
 		try:
 			await drone.conn.offboard.start()

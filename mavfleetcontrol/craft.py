@@ -77,17 +77,23 @@ class Craft(threading.Thread):
 		# self.loop.stop()
 
 	async def arm(self, coordinate:List[float] = None, attitude:List[float] = None):
-		try:
-			print(f"{self.name}: arming")
-			await self.conn.action.arm()
-			print(f"{self.name}: Setting initial setpoint")
-			if coordinate is not None:
-				await self.conn.offboard.set_position_ned(PositionNedYaw(*coordinate, 0.0))
-			if attitude is not None:
-				await self.conn.offboard.set_attitude(Attitude(*attitude, 0.0))
+		async for arm in self.conn.telemetry.armed():
+			if arm is False:
+				try:
+					print(f"{self.name}: arming")
+					await self.conn.action.arm()
+					print(f"{self.name}: Setting initial setpoint")
+					if coordinate is not None:
+						await self.conn.offboard.set_position_ned(PositionNedYaw(*coordinate, 0.0))
+					if attitude is not None:
+						await self.conn.offboard.set_attitude(Attitude(*attitude, 0.0))
 
-		except Exception as bla:# add exception later
-			print(bla)
+				except Exception as bla:# add exception later
+					print(bla)
+				break
+			else:
+				break
+
 
 	async def connect(self):
 		self.conn = System(port=random.randint(1000,65535))

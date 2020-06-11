@@ -1,6 +1,3 @@
-
-import asyncio
-import time
 import numpy as np
 
 from mavfleetcontrol.craft import Craft
@@ -9,7 +6,6 @@ from mavfleetcontrol.actions.land import land
 
 if __name__ == "__main__":
 
-	# loop = asyncio.get_event_loop()
 
 
 	drone1 = Craft("drone1", "udp://:14540")
@@ -34,7 +30,7 @@ if __name__ == "__main__":
 
 	drone1.close_conn()#will run after FLYTOPOINT IS DONE)
 	drone2.close_conn()#will run after FLYTOPOINT IS DONE)
-	
+
 	drone1.join()
 	drone2.join()
 
