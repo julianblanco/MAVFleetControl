@@ -7,7 +7,7 @@ It is intended for use with offboard mode and allows users to create high level 
 
 ## Important Notes
 
-The current version of MAVSDK-Python does not allow for multiple aircraft because a user can not specify the desired port. Please use my fork (https://github.com/julianblanco/MAVSDK-Python) until the PR is hopefully merged.
+Please install [MAVSDK-Python](https://github.com/mavlink/MAVSDK-Python) from github master. The pip3 version may not allow for multiple mavsdk-servers to be spun up dynamically. 
 
 
 ## Run the multiple aircraft example
@@ -36,6 +36,11 @@ Each craft is will have the ability to spawn awaitable (asyncio) threads and has
 Actions are tasked to each aircraft via the add_action method. This adds the action to the aircraft's queue of actions to complete. The key diffrence between this and creating a mission for example is that the "actions" can be user defined (and therefore make use of offboard mode). For example the aircraft could be tasked with the following sequence [take off, loiter, go to point, perform loop-de-loop, return home].
 
 Becuase the actions are exposed at the highest level of the code, users can create code to script actions and prevent having to generate lots of manual lines of code and algortimcally control the aircraft. (this was all written so I could avoid using ROS)
+
+## Queues of actions
+
+## Emergency Actions
+
 
 ## Credit
 Major credit to Caleb Stewart for help with the threaded asyncio implementation 
