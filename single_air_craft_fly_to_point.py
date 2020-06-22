@@ -16,8 +16,9 @@ if __name__ == "__main__":
 	# loop.run_until_complete(drone.arm(coordinate=[0.0,0.0,0.0],attitude=[0.0,0.0,0.0]))
 	drone.start()
 	drone.add_action(FlyToPoint(np.array([0,0,-2]),tolerance = 0.25))
-	drone.add_action(FlyToPoint(np.array([2,0,-2]),tolerance = 0.25))
+	# drone.add_action(FlyToPoint(np.array([2,0,-2]),tolerance = 0.25))
 	drone.add_action(land)
+	
 	# drone.override_action(land)
 	drone.close_conn()#will run after FLYTOPOINT IS DONE)
 	drone.join()

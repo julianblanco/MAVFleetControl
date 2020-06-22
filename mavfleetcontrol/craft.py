@@ -105,6 +105,20 @@ class Craft(threading.Thread):
                 break
             else:
                 break
+
+    async def disarm(self):
+        async for arm in self.conn.telemetry.armed():
+            if arm is False:
+                try:
+                    print(f"{self.name}: Disarming")
+                    await self.conn.action.disarm()
+                    
+                except Exception as bla:  # add exception later
+                    print(bla)
+                break
+            else:
+                break    
+
     async def start_offboard(self):
     	     # print("-- Starting offboard")
         try:

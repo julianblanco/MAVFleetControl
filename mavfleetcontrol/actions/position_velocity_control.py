@@ -3,6 +3,7 @@ from mavsdk import System
 from mavsdk.offboard import (OffboardError,Attitude,VelocityNedYaw, PositionNedYaw)
 import numpy as np
 import asyncio
+
 def angle_between(p1, p2):
     ang1 = np.arctan2(*p1[::-1])
     ang2 = np.arctan2(*p2[::-1])
@@ -43,7 +44,7 @@ class PositionVelocityControl:
             crosstrackerror = distance2WP * np.sin(delta_heading)
             # crosstrackcorrection = crosstrackerror * 2.0
             # projectedremainingtrack = (2.0/3.0)*distance2WP*cos(delta_heading)
-            newheading =   angle_to_target - crosstrackerror * (3.14159/18)  
+            newheading =   angle_to_target - crosstrackerror * (3.14159/180)  
             xvelocity = np.cos(newheading)*self.target
             yvelocity = np.sin(newheading)*self.target
             # print(f'trackangle: {trackangle}')
