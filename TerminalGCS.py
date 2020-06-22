@@ -8,7 +8,10 @@ import sys, select
 from mavfleetcontrol.actions.point import FlyToPoint
 from mavfleetcontrol.actions.circle import Circle
 from mavfleetcontrol.actions.land import land
-
+from mavfleetcontrol.actions.disarm import Disarming
+from mavfleetcontrol.actions.arm import Arming
+from mavfleetcontrol.actions.kill import Killing
+import asyncio
 import numpy as np
 
 i = 2
@@ -68,12 +71,27 @@ def connect_to_aircraft():
 		drone = Craft('drone0','udp://:14540')	
 	drone.start()
 	return drone
+
 def actions(drone):
-
-	drone.add_action(FlyToPoint(np.array([0,0,-10]),tolerance =1))
-	drone.add_action(land)
-# will run after FLYTOPOINT IS DONE)
-
+	print("1: Arm")
+	print("2: Disarm")
+	print("3: Take off")
+	print("4: Precision Land [1,1,0]NED")
+	print("5: Go to [0,0,10] NED")
+	print("6: Circle")
+	text = prompt('actions> ', key_bindings=bindings)
+	if text == '1':
+		drone.add_action(Arming())
+	if text == '2':
+		drone.add_action(Disarming())
+	if text == '3':
+		drone.add_action(FlyToPoint(np.array([0,0,-1]),tolerance =1))
+	if text == '4':
+		drone.add_action( PercisionLand( 1.0,   np.array([1, 1])   )  )
+	if text == '5':
+		drone.add_action(FlyToPoint(np.array([0,0,-10]),tolerance =1))
+	if text == '9':
+		drone.override_action(Killing())
 def status(drone):
 	print('s')
 	drone.add_action(FlyToPoint(np.array([0,0,-5]),tolerance =1))
@@ -87,12 +105,12 @@ def settings():
 
 
 
-# @bindings.add('c-t')
-# def _(event):
-# 	" Say 'hello' when `c-t` is pressed. "
-# 	def print_hello():
-# 		print('hello world')
-# 	run_in_terminal(print_hello)
+@bindings.add('c-k')
+def _(event):
+	" Say 'hello' when `c-k` is pressed. "
+	def print_hello():
+		print('hello world')
+	run_in_terminal(print_hello)
 
 @bindings.add('c-c')
 def _(event):
