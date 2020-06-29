@@ -28,7 +28,7 @@ class FlyToPoint:
 			await drone.conn.action.disarm()
 			return
 
-		print("-- Go 0m North, 0m East, -10m Down within local coordinate system")
+		print(f"-- Go to {self.target[0]}m North, {self.target[1]}m East, {self.target[2]}m Down within local coordinate system")
 		await drone.conn.offboard.set_position_ned(PositionNedYaw(*self.target, 0.0))
 
 		async for position_ned in drone.conn.telemetry.position_velocity_ned():

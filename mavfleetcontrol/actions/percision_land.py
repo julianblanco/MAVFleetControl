@@ -29,8 +29,11 @@ class PercisionLand:
             await asyncio.sleep(0)
 
         # await drone.conn.offboard.set_velocity_ned(VelocityNedYaw(*self.target, 0.0))
+        
         flag = True
         #implement a crude cross track controller
+        print(f"-- Landing at {self.positions[0]}m North, {self.positions[1]}m East, {self.positions[2]}m Down within local coordinate system")
+        
         while flag:
             currentposn = np.array([drone.ned.position.north_m,drone.ned.position.east_m,drone.ned.position.down_m])
 

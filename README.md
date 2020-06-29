@@ -1,13 +1,20 @@
 # MAVFleetControl
-This is a wrapper around MAVSDK-Python to simplify control of multiple craft.
+MAVFleetControl is a wrapper around MAVSDK-Python to simplify control of multiple vechicles.
 It uses threaded asynchronous python to ensure real time tasking of the crafts.
 
 It is intended for use with offboard mode and allows users to create high level interactions and send them to multiple aircraft (UDP or Serial).
 
+For connections over high-latency low bandwidth links, MAVFleetControl can be run in a server-client model. Communication is done over ZeroMQ.
+
+On wifi links, MAVFleetControl can connect to multiple aircraft at once and task them directly.
+
+There is a TerminalGUI to simplify control of tasking and MAVFleetControl support emegerncy action tasking control (such as sending the E-Stop Message to all aircraft)
+
+We suggest also configuring a physical button (either microcontroller via pyserial or keyboard event) to toggle the aircraft state.
 
 ## Important Notes
 
-Please install [MAVSDK-Python](https://github.com/mavlink/MAVSDK-Python) from github master. The pip3 version may not allow for multiple mavsdk-servers to be spun up dynamically. 
+Please install [MAVSDK-Python](https://github.com/mavlink/MAVSDK-Python) from source. The pip3 version may not allow for multiple mavsdk-servers to be spun up dynamically. 
 
 
 ## Run the multiple aircraft example
