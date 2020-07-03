@@ -38,12 +38,26 @@ bindings = KeyBindings()
 
 loop = True
 #-------------------------------------------------------------------
+
+
+	#https://www.geeksforgeeks.org/clear-screen-python/
+def clear(): 
+  
+    # for windows 
+    if os.name == 'nt': 
+        _ = os.system('cls') 
+  
+    # for mac and linux(here, os.name is 'posix') 
+    else: 
+        _ = os.system('clear') 
 def print_main_page():
+	clear()
 	print('1: Connect To Aircraft')
 	print('2: Actions')
 	print('3: Status')
 	print('4: Settings')
 
+  
 def connect_to_aircraft():
 	text = prompt('TGCS> How many aircraft?:  ', key_bindings=bindings)
 	text = prompt('TGCS> Serial (1) or IP (2)', key_bindings=bindings)
@@ -73,12 +87,15 @@ def connect_to_aircraft():
 	return drone
 
 def actions(drone):
+	clear()
 	print("1: Arm")
 	print("2: Disarm")
 	print("3: Take off")
 	print("4: Precision Land [1,1,0]NED")
 	print("5: Go to [0,0,10] NED")
 	print("6: Circle")
+	print("9: Kill")
+	print("0: Return to main")
 	text = prompt('actions> ', key_bindings=bindings)
 	if text == '1':
 		drone.add_action(Arming())
@@ -92,6 +109,9 @@ def actions(drone):
 		drone.add_action(FlyToPoint(np.array([0,0,-10]),tolerance =1))
 	if text == '9':
 		drone.override_action(Killing())
+	if text == '0':
+		pass
+
 def status(drone):
 	print('s')
 	drone.add_action(FlyToPoint(np.array([0,0,-5]),tolerance =1))

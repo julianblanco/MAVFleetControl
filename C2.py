@@ -65,20 +65,11 @@ async def sender(currentmsg):
     push = ctx.socket(zmq.PUSH)
     push.bind(url2)
     
-    msg = 'hello ' + str(currentmsg)
+    msg = '.'
     while True:
-        if currentmsg == 0:
-            # print("sending 0")
-            await push.send_multipart([msg.encode('ascii')])
-            await asyncio.sleep(1)
-        if currentmsg == 1:
-            # print("sending 1")
-            await push.send_multipart([msg.encode('ascii')])
-            await asyncio.sleep(1)
-        if currentmsg == 2:
-            # print("sending 2")
-            await push.send_multipart([msg.encode('ascii')])
-            await asyncio.sleep(1)
+        # print("sending 0")
+        await push.send_multipart([msg.encode('ascii')])
+        await asyncio.sleep(1)
 
 def print_main_page():
 	print('1: Connect To Aircraft')
