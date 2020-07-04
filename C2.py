@@ -24,7 +24,7 @@ ___________        _________________   _________
   |    |  ______ /   \  ___/    \  \/ \_____  \ 
   |    | /_____/ \    \_\  \     \____/        \
   |____|erminal   \______  /\______  /_______  /
-						 \/        \/        \/ """
+                         \/        \/        \/ """
 
 print(terminalart)
 bindings = KeyBindings()
@@ -44,32 +44,43 @@ remote = True
 url = 'tcp://127.0.0.1:5555'
 url2 = 'tcp://127.0.0.1:5556'
 ctx = Context.instance()
+push = ctx.socket(zmq.PUSH)
+push.bind(url2)
 #-------------------------------------------------------------------
 
 async def receiver():
-    """receive messages with polling"""
-    pull = ctx.socket(zmq.PULL)
-    pull.connect(url)
-    poller = Poller()
-    poller.register(pull, zmq.POLLIN)
-    while True:
-        events = await poller.poll()
-        if pull in dict(events):
-            # print("recving", events)
-            msg = await pull.recv_multipart()
-            # print('recvd', msg)
+	"""receive messages with polling"""
+	pull = ctx.socket(zmq.PULL)
+	pull.connect(url)
+	poller = Poller()
+	poller.register(pull, zmq.POLLIN)
+	while True:
+		events = await poller.poll()
+		if pull in dict(events):
+			# print("recving", events)
+			msg = await pull.recv_multipart()
+			# print('recvd', msg)
 
 
-async def sender(currentmsg):
-    """send a message every second"""
-    push = ctx.socket(zmq.PUSH)
-    push.bind(url2)
-    
-    msg = '.'
-    while True:
-        # print("sending 0")
-        await push.send_multipart([msg.encode('ascii')])
-        await asyncio.sleep(1)
+async def heartbeat():
+	"""send a message every second"""
+	# push = ctx.socket(zmq.PUSH)
+	# push.bind(url2)
+	
+	msg = '.'
+	while True:
+		# print("sending 0")
+		# await push.send_multipart([msg.encode('ascii')])
+		await push.send_string(msg)
+		await asyncio.sleep(1)
+def send_message(sendmsg):
+	"""send a message every second"""
+	# push = ctx.socket(zmq.PUSH)
+	# push.bind(url2)
+	
+	msg = 'OA'+sendmsg
+	# await push.send_multipart([msg.encode('ascii')])
+	push.send_string(msg)
 
 def print_main_page():
 	print('1: Connect To Aircraft')
@@ -110,35 +121,51 @@ async def connect_to_aircraft():
 	drone.start()
 	return drone
 
-async def actions(drone):
+async def actions(drone,session):
 	print("1: Arm")
 	print("2: Disarm")
 	print("3: Take off")
 	print("4: Precision Land [1,1,0]NED")
 	print("5: Go to [0,0,10] NED")
 	print("6: Circle")
-	session = PromptSession()
+	if drone == 'remote':
+		remote = 0
+	# session = PromptSession()
 	with patch_stdout():
-		result = await session.prompt_async('actions> ')
+		text = await session.prompt_async('actions> ')
 	# text = await prompt_async('actions> ', key_bindings=bindings)
 	if text == '1':
 		if remote:
 			drone.add_action(Arming())
 		else:
-			sender(1)
+			send_message('1')
 	if text == '2':
 		if remote:
 			drone.add_action(Disarming())
 		else:
-			sender(2)
+			send_message('2')
 	if text == '3':
-		drone.add_action(FlyToPoint(np.array([0,0,-1]),tolerance =1))
+		if remote:
+			drone.add_action(FlyToPoint(np.array([0,0,-1]),tolerance =1))
+		else:
+			send_message('3')
+
 	if text == '4':
-		drone.add_action( PercisionLand( 1.0,   np.array([1, 1])   )  )
+		if remote:
+			drone.add_action( PercisionLand( 1.0,   np.array([1, 1])   )  )
+		else:
+			send_message('4')
 	if text == '5':
-		drone.add_action(FlyToPoint(np.array([0,0,-10]),tolerance =1))
+		if remote:
+			drone.add_action(FlyToPoint(np.array([0,0,-10]),tolerance =1))
+		else:
+			send_message('5')
 	if text == '9':
-		drone.override_action(Killing())
+		if remote:
+			drone.override_action(Killing())
+		else:
+			send_message('9')
+
 def status(drone):
 	print('s')
 	drone.add_action(FlyToPoint(np.array([0,0,-5]),tolerance =1))
@@ -172,16 +199,16 @@ async def prompt():
 	print("Welcome!")
 	session = PromptSession()
 
-	drones = None
+	drones = 'remote'
 	while loop == True:
 		print_main_page()
 		with patch_stdout():
-			result = await session.prompt_async('TGCS> ')#, key_bindings=bindings)
+			text = await session.prompt_async('TGCS> ')#, key_bindings=bindings)
 		# text = await prompt_async('TGCS> ', key_bindings=bindings)
 		if text == '1':
 			drones = connect_to_aircraft()
 		if text == '2':
-			actions(drones)
+			await actions(drones,session)
 		if text =='3':
 			status(drones)
 		if text == '4':
@@ -193,7 +220,7 @@ async def prompt():
 if __name__ == "__main__":
 	# Start the main function
 	asyncio.ensure_future(receiver())
-	asyncio.ensure_future(sender(0))
+	asyncio.ensure_future(heartbeat())
 	asyncio.ensure_future(prompt())
 
 	# Runs the event loop until the program is canceled with e.g. CTRL-C

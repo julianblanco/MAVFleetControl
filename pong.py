@@ -23,7 +23,7 @@ async def ping():
 async def receiver():
     """receive messages with polling"""
     pull = ctx.socket(zmq.PULL)
-    pull.connect(url2)
+    pull.connect(url)
     poller = Poller()
     poller.register(pull, zmq.POLLIN)
     while True:
@@ -44,7 +44,8 @@ async def sender():
     while True:
         if currentmsg == 1:
             print("sending 1")
-            await push.send_multipart([msg.encode('ascii')])
+            # await push.send_multipart([msg.encode('ascii')])
+            await push.send_string([msg.encode('ascii')])
             await asyncio.sleep(1)
         if currentmsg == 2:
             print("sending 2")
