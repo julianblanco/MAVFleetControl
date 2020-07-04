@@ -83,10 +83,12 @@ def send_message(sendmsg):
 	push.send_string(msg)
 
 def print_main_page():
+	os.system('clear')
 	print('1: Connect To Aircraft')
 	print('2: Actions')
 	print('3: Status')
 	print('4: Settings')
+	print()
 
 async def connect_to_aircraft():
 	session = PromptSession()
@@ -122,49 +124,64 @@ async def connect_to_aircraft():
 	return drone
 
 async def actions(drone,session):
-	print("1: Arm")
-	print("2: Disarm")
-	print("3: Take off")
-	print("4: Precision Land [1,1,0]NED")
-	print("5: Go to [0,0,10] NED")
-	print("6: Circle")
-	if drone == 'remote':
-		remote = 0
-	# session = PromptSession()
-	with patch_stdout():
-		text = await session.prompt_async('actions> ')
-	# text = await prompt_async('actions> ', key_bindings=bindings)
-	if text == '1':
-		if remote:
-			drone.add_action(Arming())
+	while True:
+		os.system('clear')
+		print("1: Arm")
+		print("2: Disarm")
+		print("3: Take off")
+		print("4: Land")
+		print("5: Precision Land [1,1,0]NED")
+		print("6: Go to [0,0,10] NED")
+		print("7: Circle")
+		print("9: Emergency Cut Off")
+		print("0: Back to Main")
+		print()
+		if drone == 'remote':
+			remote = 0
 		else:
-			send_message('1')
-	if text == '2':
-		if remote:
-			drone.add_action(Disarming())
-		else:
-			send_message('2')
-	if text == '3':
-		if remote:
-			drone.add_action(FlyToPoint(np.array([0,0,-1]),tolerance =1))
-		else:
-			send_message('3')
+			remote = 1
+		# session = PromptSession()
+		with patch_stdout():
+			text = await session.prompt_async('actions> ')
+		# text = await prompt_async('actions> ', key_bindings=bindings)
+		if text == '1':
+			if remote:
+				drone.add_action(Arming())
+			else:
+				send_message('1')
+		if text == '2':
+			if remote:
+				drone.add_action(Disarming())
+			else:
+				send_message('2')
+		if text == '3':
+			if remote:
+				drone.add_action(FlyToPoint(np.array([0,0,-1]),tolerance =1))
+			else:
+				send_message('3')
 
-	if text == '4':
-		if remote:
-			drone.add_action( PercisionLand( 1.0,   np.array([1, 1])   )  )
-		else:
-			send_message('4')
-	if text == '5':
-		if remote:
-			drone.add_action(FlyToPoint(np.array([0,0,-10]),tolerance =1))
-		else:
-			send_message('5')
-	if text == '9':
-		if remote:
-			drone.override_action(Killing())
-		else:
-			send_message('9')
+		if text == '4':
+			if remote:
+				dront.add_action(land)
+			else:
+				send_message('4')
+		if text == '5':
+			if remote:
+				drone.add_action( PercisionLand( 1.0,   np.array([1, 1])   )  )
+			else:
+				send_message('5')
+		if text == '6':
+			if remote:
+				drone.add_action(FlyToPoint(np.array([0,0,-10]),tolerance =1))
+			else:
+				send_message('6')
+		if text == '9':
+			if remote:
+				drone.override_action(Killing())
+			else:
+				send_message('9')
+		if text == '0':
+			break
 
 def status(drone):
 	print('s')
