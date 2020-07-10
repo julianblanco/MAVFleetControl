@@ -5,8 +5,8 @@ import numpy as np
 from mavfleetcontrol.craft import Craft
 from mavfleetcontrol.actions.point import FlyToPoint
 from mavfleetcontrol.actions.percision_land import PercisionLand
-from mavfleetcontrol.actions.arm import Arming
-from mavfleetcontrol.actions.disarm import Disarming
+from mavfleetcontrol.actions.arm import Arm
+from mavfleetcontrol.actions.disarm import Disarm
 from mavfleetcontrol.actions.land import land
 from mavfleetcontrol.actions.circle import Circle
 
@@ -45,9 +45,9 @@ async def receiver(drone):
                 if(((msg[0])[:2])==(b'OA')):
                     # print((msg[0])[2])
                     if(((msg[0])[2])==49):
-                        drone.add_action(Arming())
+                        drone.add_action(Arm())
                     if(((msg[0])[2])==50):
-                        drone.add_action(Disarming())
+                        drone.add_action(Disarm())
                     if(((msg[0])[2])==51):
                         drone.add_action(FlyToPoint(np.array([0, 0, -1]), tolerance=2.5))
                     if(((msg[0])[2])==52):
@@ -59,7 +59,7 @@ async def receiver(drone):
                     if(((msg[0])[2])==55):
                         drone.add_action(Circle(velocity=20.0,radius=8.0,angle=0.0))
                     if(((msg[0])[2])==57):
-                        drone.override_action(Killing())
+                        drone.override_action(Spin())
                     if(((msg[0])[2])==57):
                         drone.override_action(Killing())
             except Exception as E:

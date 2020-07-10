@@ -9,8 +9,8 @@ import sys, select
 from mavfleetcontrol.actions.point import FlyToPoint
 from mavfleetcontrol.actions.circle import Circle
 from mavfleetcontrol.actions.land import land
-from mavfleetcontrol.actions.disarm import Disarming
-from mavfleetcontrol.actions.arm import Arming
+from mavfleetcontrol.actions.disarm import Disarm
+from mavfleetcontrol.actions.arm import Arm
 from mavfleetcontrol.actions.kill import Killing
 import asyncio
 import numpy as np
@@ -28,16 +28,6 @@ ___________        _________________   _________
 
 print(terminalart)
 bindings = KeyBindings()
-# directory  = "/home/jules/MAVFleetControl"
-# scripts = os.listdir(directory)
-
-# valid_scripts = []
-# for script in scripts:
-# 	if script.endswith('py'):
-# 		valid_scripts.append(script)
-# print('Availible Options:')
-# for x in range(len(valid_scripts)):
-# 	print(str(x)+'. ' + (valid_scripts[x])[:-3])
 
 loop = True
 remote = True
@@ -83,7 +73,7 @@ def send_message(sendmsg):
 	push.send_string(msg)
 
 def print_main_page():
-	os.system('clear')
+	
 	print('1: Connect To Aircraft')
 	print('2: Actions')
 	print('3: Status')
@@ -231,6 +221,7 @@ async def prompt():
 			status(drones)
 		if text == '4':
 			settings()
+		os.system('clear')
 
 
 		# drones.override_action('exit')

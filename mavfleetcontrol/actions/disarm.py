@@ -3,7 +3,7 @@ from mavsdk import System
 import numpy as np
 # from mavsdk.offboard import (OffboardError,Attitude, PositionNedYaw)
 
-class Disarming:
+class Disarm:
 
 
 	async def __call__(self, drone):

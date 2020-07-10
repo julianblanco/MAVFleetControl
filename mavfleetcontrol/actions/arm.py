@@ -5,7 +5,7 @@ import asyncio
 
 # from mavsdk.offboard import (OffboardError,Attitude, PositionNedYaw)
 
-class Arming:
+class Arm:
 
 	# def __init__(self, point: np.array, tolerance: float = 1.0):
 	# 	self.target = point
