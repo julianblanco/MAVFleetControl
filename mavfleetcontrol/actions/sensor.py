@@ -6,26 +6,23 @@ import asyncio
 
 
 class Sensor:
-    # def __init__(self):
-    async def __call__(self, drone):
+	# def __init__(self):
+	async def __call__(self, drone):
 
-        await drone.arm(coordinate=[0.0, 0.0, 0.0], attitude=[0.0, 0.0, 0.0])
+		# schedule to get
+		# acceleration_frd (AccelerationFrd) – Acceleration
+		# angular_velocity_frd (AngularVelocityFrd) – Angular velocity
+		# magnetic_field_frd (MagneticFieldFrd) – Magnetic field
+		# temperature_degc (float) – Temperature
 
-        await drone.start_offboard()
-        # schedule to get
-        # acceleration_frd (AccelerationFrd) – Acceleration
-        # angular_velocity_frd (AngularVelocityFrd) – Angular velocity
-        # magnetic_field_frd (MagneticFieldFrd) – Magnetic field
-        # temperature_degc (float) – Temperature
+		await drone.register_sensor("imu", drone.conn.telemetry.imu())
+		await drone.register_sensor("ned", drone.conn.telemetry.position_velocity_ned())
 
-        await drone.register_sensor("imu", drone.conn.telemetry.imu())
-        await drone.register_sensor("ned", drone.conn.telemetry.position_velocity_ned())
+		# set aircraft to flip at 300 deg/s to the right (roll)
 
-        # set aircraft to flip at 300 deg/s to the right (roll)
-
-        # while True:
-	       #  if drone.imu is not None:	
-	       #  	# print(drone.imu.acceleration_frd)
-	       #  else:
-	       #  	# print("i tried :(")
-    	await asyncio.sleep(0)
+		while True:
+			if drone.imu is not None:	
+				print(drone.imu.acceleration_frd)
+			else:
+				print("i tried :(")
+			await asyncio.sleep(0)
