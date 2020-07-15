@@ -24,7 +24,7 @@ class Sensor:
 
 		while True:
 			if drone.imu is not None:	
-				# print(drone.imu.acceleration_frd)
+				print(drone.imu.acceleration_frd)
 			else:
-				# print("i tried :(")
+				print("i tried :(")
 			await asyncio.sleep(0)
