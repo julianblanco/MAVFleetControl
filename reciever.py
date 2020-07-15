@@ -1,3 +1,4 @@
+
 import asyncio
 import time
 import numpy as np
@@ -15,8 +16,8 @@ from zmq.asyncio import Context, Poller
 """Reciever to be run on the companion computer of the drone
 using zmq with asyncio with pub/sub and dealer/router"""
 
-url = 'tcp://127.0.0.1:5555'
-url2 = 'tcp://127.0.0.1:5556'
+
+xbee = 'serial:///dev/ttyUSB0:57600'
 ctx = Context.instance()
 
 async def heartbeat(drone):
@@ -27,7 +28,7 @@ async def heartbeat(drone):
 async def receiver(drone):
     """receive messages with polling"""
     pull = ctx.socket(zmq.PULL)
-    pull.connect(url2)
+    pull.connect(xbee)
     poller = Poller()
     poller.register(pull, zmq.POLLIN)
     while True:
@@ -72,7 +73,7 @@ async def receiver(drone):
 #----------------------------------------------------------------------
 if __name__ == "__main__":
     
-    drone = Craft("drone1","udp://:14540")
+    drone = Craft("drone1","serial:///dev/serial0:1000000")
     drone.start()
     asyncio.ensure_future(receiver(drone))
     asyncio.get_event_loop().run_forever()
