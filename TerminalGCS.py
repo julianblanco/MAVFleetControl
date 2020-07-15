@@ -127,47 +127,47 @@ async def actions(drone,session):
 		print("9: Emergency Cut Off")
 		print("0: Back to Main")
 		print()
-		if drone == 'local':
-			local = 0
+		if drone == 'serial':
+			serial = 0
 		else:
-			local = 1
+			serial = 0
 		# session = PromptSession()
 		with patch_stdout():
 			text = await session.prompt_async('actions> ')
 		# text = await prompt_async('actions> ', key_bindings=bindings)
 		if text == '1':
-			if local:
-				drone.add_action(Arming())
+			if serial:
+				drone.add_action(Arm())
 			else:
 				send_message('1')
 		if text == '2':
-			if local:
-				drone.add_action(Disarming())
+			if serial:
+				drone.add_action(Disarm())
 			else:
 				send_message('2')
 		if text == '3':
-			if local:
+			if serial:
 				drone.add_action(FlyToPoint(np.array([0,0,-1]),tolerance =1))
 			else:
 				send_message('3')
 
 		if text == '4':
-			if local:
+			if serial:
 				dront.add_action(land)
 			else:
 				send_message('4')
 		if text == '5':
-			if local:
+			if serial:
 				drone.add_action( PercisionLand( 1.0,   np.array([1, 1])   )  )
 			else:
 				send_message('5')
 		if text == '6':
-			if local:
+			if serial:
 				drone.add_action(FlyToPoint(np.array([0,0,-10]),tolerance =1))
 			else:
 				send_message('6')
 		if text == '9':
-			if local:
+			if serial:
 				drone.override_action(Killing())
 			else:
 				send_message('9')
@@ -207,7 +207,7 @@ async def prompt():
 	print("Welcome!")
 	session = PromptSession()
 
-	drones = 'remote'
+	drones = 'serial'
 	while loop == True:
 		print_main_page()
 		with patch_stdout():

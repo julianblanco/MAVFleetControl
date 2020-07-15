@@ -17,12 +17,14 @@ class Sensor:
 
 		await drone.register_sensor("imu", drone.conn.telemetry.imu())
 		await drone.register_sensor("ned", drone.conn.telemetry.position_velocity_ned())
-
+		while drone.imu is None or drone.ned is None:
+			print('Not')
+			await asyncio.sleep(0)
 		# set aircraft to flip at 300 deg/s to the right (roll)
 
 		while True:
 			if drone.imu is not None:	
-				print(drone.imu.acceleration_frd)
+				# print(drone.imu.acceleration_frd)
 			else:
-				print("i tried :(")
+				# print("i tried :(")
 			await asyncio.sleep(0)
