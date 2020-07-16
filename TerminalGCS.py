@@ -14,9 +14,7 @@ from mavfleetcontrol.actions.arm import Arm
 from mavfleetcontrol.actions.kill import Killing
 import asyncio
 import numpy as np
-import zmq
-from zmq.asyncio import Context, Poller
-
+import serial
 i = 2
 terminalart = r"""
 ___________        _________________   _________
@@ -31,26 +29,8 @@ bindings = KeyBindings()
 
 loop = True
 remote = True
-url = 'tcp://127.0.0.1:5555'
-url2 = 'tcp://127.0.0.1:5556'
-ctx = Context.instance()
-push = ctx.socket(zmq.PUSH)
-push.bind(url2)
+ser = serial.Serial('/dev/ttyUSB0')  # open serial port
 #-------------------------------------------------------------------
-
-async def receiver():
-	"""receive messages with polling"""
-	pull = ctx.socket(zmq.PULL)
-	pull.connect(url)
-	poller = Poller()
-	poller.register(pull, zmq.POLLIN)
-	while True:
-		events = await poller.poll()
-		if pull in dict(events):
-			# print("recving", events)
-			msg = await pull.recv_multipart()
-			# print('recvd', msg)
-
 
 async def heartbeat():
 	"""send a message every second"""
@@ -59,18 +39,16 @@ async def heartbeat():
 	
 	msg = '.'
 	while True:
-		# print("sending 0")
-		# await push.send_multipart([msg.encode('ascii')])
-		await push.send_string(msg)
+		ser.write(msg.encode()) 
 		await asyncio.sleep(1)
+
 def send_message(sendmsg):
 	"""send a message every second"""
 	# push = ctx.socket(zmq.PUSH)
 	# push.bind(url2)
 	
 	msg = 'OA'+sendmsg
-	# await push.send_multipart([msg.encode('ascii')])
-	push.send_string(msg)
+	ser.write(msg.encode()) 
 
 def print_main_page():
 	
@@ -228,7 +206,6 @@ async def prompt():
 #----------------------------------------------------------------------
 if __name__ == "__main__":
 	# Start the main function
-	asyncio.ensure_future(receiver())
 	asyncio.ensure_future(heartbeat())
 	asyncio.ensure_future(prompt())
 

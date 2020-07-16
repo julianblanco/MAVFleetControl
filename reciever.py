@@ -1,5 +1,5 @@
-
 import asyncio
+import serial_asyncio
 import time
 import numpy as np
 
@@ -11,69 +11,53 @@ from mavfleetcontrol.actions.disarm import Disarm
 from mavfleetcontrol.actions.land import land
 from mavfleetcontrol.actions.circle import Circle
 
-import zmq
-from zmq.asyncio import Context, Poller
-"""Reciever to be run on the companion computer of the drone
-using zmq with asyncio with pub/sub and dealer/router"""
-
-
-xbee = 'serial:///dev/ttyUSB0:57600'
-ctx = Context.instance()
-
-async def heartbeat(drone):
-    while True:
-        await asyncio.sleep(1)
-    # drone.override_action(land)
-
-async def receiver(drone):
-    """receive messages with polling"""
-    pull = ctx.socket(zmq.PULL)
-    pull.connect(xbee)
-    poller = Poller()
-    poller.register(pull, zmq.POLLIN)
-    while True:
-
-            try:
-            events = await poller.poll()
-            if pull in dict(events):
-                # print("recving", events)
-                msg = await pull.recv_multipart()
-                # print((msg[0]))
-                # print(msg.type)
-                if(msg[0]==b'.'):
-                    # heartbeat(drone)
-                    pass
-                if(((msg[0])[:2])==(b'OA')):
-                    # print((msg[0])[2])
-                    if(((msg[0])[2])==49):
-                        drone.add_action(Arm())
-                    if(((msg[0])[2])==50):
-                        drone.add_action(Disarm())
-                    if(((msg[0])[2])==51):
-                        drone.add_action(FlyToPoint(np.array([0, 0, -1]), tolerance=2.5))
-                    if(((msg[0])[2])==52):
-                        drone.add_action(land())
-                    if(((msg[0])[2])==53):
-                        drone.add_action( PercisionLand( 1.0,   np.array([1, 1])   )  )
-                    if(((msg[0])[2])==54):
-                        drone.add_action(FlyToPoint(np.array([0,0,-10]),tolerance =1))
-                    if(((msg[0])[2])==55):
-                        drone.add_action(Circle(velocity=20.0,radius=8.0,angle=0.0))
-                    if(((msg[0])[2])==57):
-                        drone.override_action(Spin())
-                    if(((msg[0])[2])==57):
-                        drone.override_action(Killing())
-            except Exception as E:
-                print(E)
 
 
 
+class Output(asyncio.Protocol):
+    def connection_made(self, transport):
+        self.transport = transport
+        print('port opened', transport)
+        transport.serial.rts = False
+        transport.write(b'hello world\n')
 
+    def data_received(self, msg):
+        # print('data received', repr(data))
+        try:
+            if(msg==b'.'):
+            # heartbeat(drone)
+                pass
+            if(((msg)[:2])==(b'OA')):
+            # print((msg)[2])
+                if(((msg)[2])==49):
+                    drone.add_action(Arm())
+                if(((msg)[2])==50):
+                    drone.add_action(Disarm())
+                if(((msg)[2])==51):
+                    drone.add_action(FlyToPoint(np.array([0, 0, -1]), tolerance=2.5))
+                if(((msg)[2])==52):
+                    drone.add_action(land())
+                if(((msg)[2])==53):
+                    drone.add_action( PercisionLand( 1.0,   np.array([1, 1])   )  )
+                if(((msg)[2])==54):
+                    drone.add_action(FlyToPoint(np.array([0,0,-10]),tolerance =1))
+                if(((msg)[2])==55):
+                    drone.add_action(Circle(velocity=20.0,radius=8.0,angle=0.0))
+                if(((msg)[2])==57):
+                    drone.override_action(Spin())
+                if(((msg)[2])==57):
+                    drone.override_action(Killing())
+        except Exception as E:
+            print(E)
+    def connection_lost(self, exc):
+        print('port closed')
+        asyncio.get_event_loop().stop()
 
-#----------------------------------------------------------------------
-if __name__ == "__main__":
-    
-    drone = Craft("drone1","serial:///dev/serial0:1000000")
-    drone.start()
-    asyncio.ensure_future(receiver(drone))
-    asyncio.get_event_loop().run_forever()
+# drone = Craft("drone1","serial:///dev/serial0:1000000")
+drone = Craft('drone0',"udp://:14540")
+drone.start()
+loop = asyncio.get_event_loop()
+coro = serial_asyncio.create_serial_connection(loop, Output, '/dev/ttyUSB1', baudrate=57600)
+loop.run_until_complete(coro)
+loop.run_forever()
+loop.close()
