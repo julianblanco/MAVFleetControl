@@ -5,7 +5,6 @@ import numpy as np
 from mavfleetcontrol.craft import Craft
 from mavfleetcontrol.actions.point import FlyToPoint
 from mavfleetcontrol.actions.percision_land import PercisionLand
-
 from mavfleetcontrol.actions.land import land
 
 if __name__ == "__main__":
