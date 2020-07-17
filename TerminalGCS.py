@@ -29,7 +29,7 @@ bindings = KeyBindings()
 
 loop = True
 remote = True
-ser = serial.Serial('/dev/ttyUSB0')  # open serial port
+ser = serial.Serial('/dev/ttyUSB0',"57600")  # open serial port
 #-------------------------------------------------------------------
 
 async def heartbeat():
@@ -131,7 +131,7 @@ async def actions(drone,session):
 
 		if text == '4':
 			if serial:
-				dront.add_action(land)
+				dront.add_action(land())
 			else:
 				send_message('4')
 		if text == '5':
@@ -144,6 +144,17 @@ async def actions(drone,session):
 				drone.add_action(FlyToPoint(np.array([0,0,-10]),tolerance =1))
 			else:
 				send_message('6')
+		if text == '7':
+			if serial:
+				drone.add_action(Circle(velocity=5.0,radius=8.0,angle=0.0))
+				# pass
+			else:
+				send_message('7')
+		if text == '8':
+			if serial:
+				drone.override_action(spin())
+			else:
+				send_message('8')
 		if text == '9':
 			if serial:
 				drone.override_action(Killing())
