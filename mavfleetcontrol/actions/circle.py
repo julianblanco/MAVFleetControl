@@ -102,7 +102,7 @@ class Circle:
 
 			if self.currentLoops >= self.desiredLoops:
 				print(f"{self.desiredLoops} completed!")
-				print(f"-- Go to {self.target[0]}m North, {self.target[1]}m East, {self.target[2]}m Down within local coordinate system")
-				await drone.conn.offboard.set_position_ned(PositionNedYaw(*start_position, 0.0))
+				# print(f"-- Go to {self.target[0]}m North, {self.target[1]}m East, {self.target[2]}m Down within local coordinate system")
+				await drone.conn.offboard.set_position_ned(PositionNedYaw(*start_position, start_height, 0.0))
 
 				break
