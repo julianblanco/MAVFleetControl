@@ -1,4 +1,4 @@
-import asyncio
+`import asyncio
 import serial_asyncio
 import time
 import numpy as np
@@ -67,8 +67,8 @@ class Output(asyncio.Protocol):
 drone = Craft('drone0',"udp://:14540")
 drone.start()
 loop = asyncio.get_event_loop()
-coro = serial_asyncio.create_serial_connection(loop, Output, '/dev/ttyUSB0', baudrate=57600)
-# coro = serial_asyncio.create_serial_connection(loop, Output, '/dev/serial0', baudrate=1000000)
+# coro = serial_asyncio.create_serial_connection(loop, Output, '/dev/ttyUSB0', baudrate=57600)
+coro = serial_asyncio.create_serial_connection(loop, Output, '/dev/serial0', baudrate=1000000)
 loop.run_until_complete(coro)
 loop.run_forever()
 loop.close()
