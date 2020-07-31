@@ -10,15 +10,14 @@ if __name__ == "__main__":
 
 
 	drone1 = Craft("drone1", "udp://:14540")
-	drone2 = Craft("drone2", "udp://:14541")
-
-
 	drone1.start()
-	drone2.start()
+	with serial.Serial('/dev/ttyUSB0', baudrate=57600, timeout=1) as ser:
+		while(1):
+			line = ser.readline().decode('ascii', errors='replace')
+			data = line.split(',')
+			drone1.add_action(FlyToPoint(np.array([0,0,-2]),tolerance = 0.25))
 
-	drone1.add_action(FlyToPoint(np.array([0,0,-2]),tolerance = 0.25))
-	drone1.add_action(FlyToPoint(np.array([2,0,-2]),tolerance = 0.25))
-	drone2.add_action(Follow(leaderdrone = drone1))
+
 
 	drone1.add_action(land)
 

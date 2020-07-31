@@ -32,22 +32,31 @@ class Output(asyncio.Protocol):
             # print((msg)[2])
                 if(((msg)[2])==49):#1
                     drone.add_action(Arm())
+                    print('arm')
                 if(((msg)[2])==50):#2
                     drone.add_action(Disarm())
+                    print('disarm')
                 if(((msg)[2])==51):#3
                     drone.add_action(FlyToPoint(np.array([0, 0, -1]), tolerance=2.5))
+                    print('ftp0,0,-1')
                 if(((msg)[2])==52):#4
                     drone.add_action(land())
+                    print('land')
                 if(((msg)[2])==53):#5
                     drone.add_action( PercisionLand( 1.0,   np.array([1, 1])   )  )
+                    print('percision_land')
                 if(((msg)[2])==54):#6
                     drone.add_action(FlyToPoint(np.array([0,0,-10]),tolerance =1))
+                    print('FlyToPoint0,0,-10')
                 if(((msg)[2])==55):#7
                     drone.add_action(Circle(velocity=20.0,radius=8.0,angle=0.0))
+                    print('circle')
                 if(((msg)[2])==56):#8
-                    drone.override_action(Spin())
+                    drone.add_action(Spin())
+                    print('Spin')
                 if(((msg)[2])==57):#9
                     drone.override_action(Killing())
+                    print('Killing!')
         except Exception as E:
             print(E)
     def connection_lost(self, exc):
