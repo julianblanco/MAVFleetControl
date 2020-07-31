@@ -1,4 +1,4 @@
- from mavfleetcontrol.craft import Craft
+from mavfleetcontrol.craft import Craft
 from mavsdk import System
 import numpy as np
 import asyncio
