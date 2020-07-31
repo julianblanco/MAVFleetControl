@@ -117,7 +117,10 @@ class Craft(threading.Thread):
                     print(bla)
                 break
             else:
-                break    
+                break
+    async def land(self):
+        await drone.action.land()
+                   
     async def kill(self):
         async for arm in self.conn.telemetry.armed():
             if arm is True:

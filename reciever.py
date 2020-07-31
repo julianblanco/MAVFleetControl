@@ -49,7 +49,7 @@ class Output(asyncio.Protocol):
                     drone.add_action(FlyToPoint(np.array([0,0,-10]),tolerance =1))
                     print('FlyToPoint0,0,-10')
                 if(((msg)[2])==55):#7
-                    drone.add_action(Circle(velocity=20.0,radius=8.0,angle=0.0))
+                    drone.add_action(Circle(velocity=2.0,radius=8.0,angle=0.0))
                     print('circle')
                 if(((msg)[2])==56):#8
                     drone.add_action(Spin())
@@ -67,7 +67,8 @@ class Output(asyncio.Protocol):
 drone = Craft('drone0',"udp://:14540")
 drone.start()
 loop = asyncio.get_event_loop()
-coro = serial_asyncio.create_serial_connection(loop, Output, '/dev/ttyUSB1', baudrate=57600)
+coro = serial_asyncio.create_serial_connection(loop, Output, '/dev/ttyUSB0', baudrate=57600)
+# coro = serial_asyncio.create_serial_connection(loop, Output, '/dev/serial0', baudrate=1000000)
 loop.run_until_complete(coro)
 loop.run_forever()
 loop.close()
