@@ -46,47 +46,46 @@ class MinSnap(Quadcopter):
         # main loop; queries sensors, runs min snap trajectory generation and position controller
         s = np.zeros(13)
         start_time = time.time()
-        async for pos_vel in drone.conn.telemetry.position_velocity_ned():
-            loop = 2
-            s[0] = pos_vel.position.north_m
-            s[1] = pos_vel.position.east_m
-            s[2] = -pos_vel.position.down_m
-            s[3] = pos_vel.velocity.north_m_s
-            s[4] = pos_vel.velocity.east_m_s
-            s[5] = -pos_vel.velocity.down_m_s
-            # print("loop 1")
+        while(1):
+            # print("1")
+            async for pos_vel in drone.conn.telemetry.position_velocity_ned():
+
+                s[0] = pos_vel.position.north_m
+                s[1] = pos_vel.position.east_m
+                s[2] = -pos_vel.position.down_m
+                s[3] = pos_vel.velocity.north_m_s
+                s[4] = pos_vel.velocity.east_m_s
+                s[5] = -pos_vel.velocity.down_m_s
+                break
+            # print("loop 2")
             async for quat in drone.conn.telemetry.attitude_quaternion():
-                if loop == 1:
-                    break
-                loop = 3
                 s[6] = quat.w
                 s[7] = quat.x
                 s[8] = quat.y
                 s[9] = quat.z
-                # print("loop 2")
-                async for rate in drone.conn.telemetry.attitude_angular_velocity_body():
-                    loop = 1
-                    s[10] = rate.roll_rad_s
-                    s[11] = rate.pitch_rad_s
-                    s[12] = rate.yaw_rad_s
+                break
+            # print("loop 3")
+            async for rate in drone.conn.telemetry.attitude_angular_velocity_body():
+                # loop = 1
+                s[10] = rate.roll_rad_s
+                s[11] = rate.pitch_rad_s
+                s[12] = rate.yaw_rad_s
                     # print("loop 3")
+                break
+            self._state = s
+            assert str(np.shape(self._state)) == "(13,)", "Incorrect state vector size in simulation_step: {}".format(np.shape(self._state))
+            assert str(np.shape(self._desired_state)) == "(11,)", "Incorrect desired state vector size in simulation_step: {}".format(np.shape(self._desired_state))
+            assert str(np.shape(self._goal)) == "(11,)", "Incorrect goal vector size in simulation_step: {}".format(np.shape(self._goal))
 
-                    self._state = s
-                    assert str(np.shape(self._state)) == "(13,)", "Incorrect state vector size in simulation_step: {}".format(np.shape(self._state))
-                    assert str(np.shape(self._desired_state)) == "(11,)", "Incorrect desired state vector size in simulation_step: {}".format(np.shape(self._desired_state))
-                    assert str(np.shape(self._goal)) == "(11,)", "Incorrect goal vector size in simulation_step: {}".format(np.shape(self._goal))
+            t = time.time() - start_time
+            new_des_state = self.minimun_snap_trajectory(self._state[0:3], t)												# minimum snap trajecotry with default path
+            # new_des_state = self.simple_line_trajectory(self._state[0:3], self._goal[0:3], 10, t)				# straight line
+            self._desired_state[0:9] = new_des_state
+            thrust, moment = self.pid_controller()
 
-                    t = time.time() - start_time
-                    new_des_state = self.minimun_snap_trajectory(self._state[0:3], t)												# minimum snap trajecotry with default path
-                    # new_des_state = self.simple_line_trajectory(self._state[0:3], self._goal[0:3], 10, t)				# straight line
-                    self._desired_state[0:9] = new_des_state
-                    thrust, moment = self.pid_controller()
-
-                    thrust = thrust / 24.0                      # normalize the thrust value
-                    moment = moment * (180/np.pi)
-
-                    # await drone.conn.offboard.set_attitude_rate(AttitudeRate(moment[0], moment[1], moment[2], thrust))
-                    await drone.conn.offboard.set_attitude_rate(AttitudeRate(0.0, 0.0, 0.0, thrust))
-                    asyncio.sleep(0.2)
-
-                    break
+            thrust = thrust / 24.0                      # normalize the thrust value
+            moment = moment * (180/np.pi)
+            print(moment)
+            await drone.conn.offboard.set_attitude_rate(AttitudeRate(moment[0], moment[1], moment[2], thrust))
+            # await drone.conn.offboard.set_attitude_rate(AttitudeRate(0.0, 0.0, 0.0, thrust))
+            # asyncio.sleep(0.2)
