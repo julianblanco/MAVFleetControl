@@ -180,7 +180,7 @@ class Quadcopter:
 		pass
 
 	def minimun_snap_trajectory(self, cur_pos, cur_time):
-		if cur_time < 0.1:
+		if cur_time < 0.05:
 			# global path
 			# global total_time
 			# global ts
@@ -392,6 +392,8 @@ class Quadcopter:
 		des_yaw = self._desired_state[9]
 		phi_des = (1/self._quad_properties["gravity"]) * (acc_des[0]*np.sin(des_yaw) - acc_des[1]*np.cos(des_yaw))
 		theta_des = (1/self._quad_properties["gravity"]) * (acc_des[0]*np.cos(des_yaw) + acc_des[1]*np.sin(des_yaw))
+		theta_des = -theta_des
+		# phi_des = -phi_des
 		psi_des = des_yaw
 
 		euler_des = np.array([phi_des, theta_des, psi_des])
@@ -399,11 +401,19 @@ class Quadcopter:
 
 		quat = self._state[6:10] 					# 4x1
 		euler = Quadcopter.quat2euler(quat) 		# 3x1
+		# print("des yaw: ", des_yaw)
+		# print("euler: ", euler)
 
 		thrust = self._quad_properties["mass"] * (self._quad_properties["gravity"] + acc_des[2]) 		# 1x1
 		moment = np.matmul(self._quad_properties["inertia"], (Kd_ang*(pqr_des - self._state[10:13]) + Kp_ang*(euler_des - euler))) 		# 3x1
 
-		return thrust, moment
+		forces = np.array([thrust, moment[0], moment[1]]) 					# excludes the yaw force from physical limitations
+		prop_thrust = np.matmul(self._quad_properties["limitsA"], forces) 																		# 4x1
+		prop_thrust_limited = np.maximum(np.minimum(prop_thrust, self._quad_properties["max_force"]), self._quad_properties["min_force"]) 		# 4x1
+		new_thrust = np.matmul(self._quad_properties["limitsB"][0, :], prop_thrust_limited) 													# 1x1
+		new_moment = np.append(np.matmul(self._quad_properties["limitsB"][1:3], prop_thrust_limited), moment[2]) 						# 3x1
+
+		return new_thrust, new_moment
 
 	def equations_of_motion(self, controller_thrust, angular_force):
 		"""

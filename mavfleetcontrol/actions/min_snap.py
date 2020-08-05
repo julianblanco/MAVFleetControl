@@ -55,7 +55,7 @@ class MinSnap(Quadcopter):
                 s[2] = -pos_vel.position.down_m
                 s[3] = pos_vel.velocity.north_m_s
                 s[4] = pos_vel.velocity.east_m_s
-                s[5] = -pos_vel.velocity.down_m_s
+                s[5] = -pos_vel.velocity.down_m_s           # TODO: should this be negative? velocity encodes direction...
                 break
             # print("loop 2")
             async for quat in drone.conn.telemetry.attitude_quaternion():
@@ -82,10 +82,16 @@ class MinSnap(Quadcopter):
             # new_des_state = self.simple_line_trajectory(self._state[0:3], self._goal[0:3], 10, t)				# straight line
             self._desired_state[0:9] = new_des_state
             thrust, moment = self.pid_controller()
+            # print("state: ", self._state)
+            # print("desired state: ", self._desired_state)
 
-            thrust = thrust / 24.0                      # normalize the thrust value
+            # print("pre-clip thrust: ", thrust)
+            # print("pre-clip moment: ", moment)
+
+            thrust = thrust / 48.0                      # normalize the thrust value; what is the max? tried: 24
             moment = moment * (180/np.pi)
-            print(moment)
+            # print("clipped thrust: ", thrust)
+            # print("clipped moment: ", moment)
             await drone.conn.offboard.set_attitude_rate(AttitudeRate(moment[0], moment[1], moment[2], thrust))
             # await drone.conn.offboard.set_attitude_rate(AttitudeRate(0.0, 0.0, 0.0, thrust))
             # asyncio.sleep(0.2)
