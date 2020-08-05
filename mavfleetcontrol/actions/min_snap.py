@@ -93,5 +93,6 @@ class MinSnap(Quadcopter):
             # print("clipped thrust: ", thrust)
             # print("clipped moment: ", moment)
             await drone.conn.offboard.set_attitude_rate(AttitudeRate(moment[0], moment[1], moment[2], thrust))
+            
             # await drone.conn.offboard.set_attitude_rate(AttitudeRate(0.0, 0.0, 0.0, thrust))
             # asyncio.sleep(0.2)

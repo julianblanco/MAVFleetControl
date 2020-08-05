@@ -21,13 +21,14 @@ class Output(asyncio.Protocol):
         transport.serial.rts = False
         transport.write(b'hello world\n')
 
+
     def data_received(self, msg):
         # print('data received', repr(msg))
         try:
             if(msg==b'.'):
             # heartbeat(drone)
                 # print('hi')
-                pass
+                
             if(((msg)[:2])==(b'OA')):
             # print((msg)[2])
                 if(((msg)[2])==49):#1
