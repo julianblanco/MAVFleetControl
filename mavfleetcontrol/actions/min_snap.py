@@ -27,17 +27,16 @@ class MinSnap(Quadcopter):
         loop = 1
         init_arr = np.zeros(6)
         async for pos_vel in drone.conn.telemetry.position_velocity_ned():
-            if loop == 2:
-                break
             init_arr[0] = pos_vel.position.north_m
             init_arr[1] = pos_vel.position.east_m
             init_arr[2] = -pos_vel.position.down_m
-            async for quat in drone.conn.telemetry.attitude_quaternion():
-                loop = 2
-                init_arr[3] = quat.x
-                init_arr[4] = quat.y
-                init_arr[5] = quat.z
-                break
+            break
+        async for quat in drone.conn.telemetry.attitude_quaternion():
+                # loop = 2
+            init_arr[3] = quat.x
+            init_arr[4] = quat.y
+            init_arr[5] = quat.z
+            break
 
         self._state = self.set_initial_state(init_arr)
         self._desired_state = self.set_desired_state([0.0, 0.0, 5.0])
@@ -57,7 +56,7 @@ class MinSnap(Quadcopter):
                 s[4] = pos_vel.velocity.east_m_s
                 s[5] = -pos_vel.velocity.down_m_s           # TODO: should this be negative? velocity encodes direction...
                 break
-            asyncio.sleep(0.1)
+            asyncio.sleep(0.01)
             # # # print("loop 2")
             async for quat in drone.conn.telemetry.attitude_quaternion():
                 s[6] = quat.w
@@ -65,7 +64,7 @@ class MinSnap(Quadcopter):
                 s[8] = quat.y
                 s[9] = quat.z
                 break
-            asyncio.sleep(0.1)
+            asyncio.sleep(0.01)
             # # print("loop 3")
             async for rate in drone.conn.telemetry.attitude_angular_velocity_body():
                 # loop = 1
@@ -74,28 +73,30 @@ class MinSnap(Quadcopter):
                 s[12] = rate.yaw_rad_s
                     # print("loop 3")
                 break
-            print(s)
-            # self._state = s
-            # assert str(np.shape(self._state)) == "(13,)", "Incorrect state vector size in simulation_step: {}".format(np.shape(self._state))
-            # assert str(np.shape(self._desired_state)) == "(11,)", "Incorrect desired state vector size in simulation_step: {}".format(np.shape(self._desired_state))
-            # assert str(np.shape(self._goal)) == "(11,)", "Incorrect goal vector size in simulation_step: {}".format(np.shape(self._goal))
+            asyncio.sleep(0.01)
+            # print(s)
+            self._state = s
+            assert str(np.shape(self._state)) == "(13,)", "Incorrect state vector size in simulation_step: {}".format(np.shape(self._state))
+            assert str(np.shape(self._desired_state)) == "(11,)", "Incorrect desired state vector size in simulation_step: {}".format(np.shape(self._desired_state))
+            assert str(np.shape(self._goal)) == "(11,)", "Incorrect goal vector size in simulation_step: {}".format(np.shape(self._goal))
 
-            # t = time.time() - start_time
-            # new_des_state = self.minimun_snap_trajectory(self._state[0:3], t)												# minimum snap trajecotry with default path
-            # # new_des_state = self.simple_line_trajectory(self._state[0:3], self._goal[0:3], 10, t)				# straight line
-            # self._desired_state[0:9] = new_des_state
-            # thrust, moment = self.pid_controller()
-            # # print("state: ", self._state)
-            # # print("desired state: ", self._desired_state)
+            t = time.time() - start_time
+            new_des_state = self.minimun_snap_trajectory(self._state[0:3], t)												# minimum snap trajecotry with default path
+            # new_des_state = self.simple_line_trajectory(self._state[0:3], self._goal[0:3], 10, t)				# straight line
+            self._desired_state[0:9] = new_des_state
+            thrust, moment = self.pid_controller()
+            # print("state: ", self._state)
+            # print("desired state: ", self._desired_state)
 
-            # # print("pre-clip thrust: ", thrust)
-            # # print("pre-clip moment: ", moment)
+            # print("pre-clip thrust: ", thrust)
+            # print("pre-clip moment: ", moment)
 
-            # thrust = thrust / 48.0                      # normalize the thrust value; what is the max? tried: 24
-            # moment = moment * (180/np.pi)
-            # print("clipped thrust: ", thrust)
-            # print("clipped moment: ", moment)
-            # await drone.conn.offboard.set_attitude_rate(AttitudeRate(moment[0], moment[1], moment[2], thrust))
+            thrust = thrust / 60.0                      # normalize the thrust value; what is the max? tried: 24
+            moment = moment * (180/np.pi)
+            print("clipped thrust: ", thrust)
+            print("desired att: ", moment)
+            asyncio.sleep(0.01)
+            await drone.conn.offboard.set_attitude(Attitude(moment[0], moment[1], moment[2], thrust))
 
-            await drone.conn.offboard.set_attitude_rate(AttitudeRate(0.0, 0.0, 0.0, 0.5))
-            asyncio.sleep(0.2)
+            # await drone.conn.offboard.set_attitude_rate(AttitudeRate(0.0, 0.0, 0.0, 0.5))
+            asyncio.sleep(0.01)

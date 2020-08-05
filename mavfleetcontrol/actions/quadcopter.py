@@ -415,7 +415,7 @@ class Quadcopter:
 		new_thrust = np.matmul(self._quad_properties["limitsB"][0, :], prop_thrust_limited) 													# 1x1
 		new_moment = np.append(np.matmul(self._quad_properties["limitsB"][1:3], prop_thrust_limited), moment[2]) 						# 3x1
 
-		return new_thrust, new_moment
+		return new_thrust, euler_des
 
 	def equations_of_motion(self, controller_thrust, angular_force):
 		"""
