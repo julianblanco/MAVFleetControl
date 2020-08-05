@@ -61,6 +61,7 @@ class Quadcopter:
 		self.total_time = 0.0
 		self.ts = []
 		self.coef = []
+		self.minSnapSet = False
 	#
 	# Helper methods
 	#
@@ -180,7 +181,7 @@ class Quadcopter:
 		pass
 
 	def minimun_snap_trajectory(self, cur_pos, cur_time):
-		if cur_time < 0.05:
+		if not self.minSnapSet:
 			# global path
 			# global total_time
 			# global ts
@@ -204,6 +205,7 @@ class Quadcopter:
 			print("last wpt: ", self.path[:, -1])
 			print("Time series: ", self.ts)
 			print("Total time: ", self.total_time)
+			self.minSnapSet = True
 			# TODO: do I need a return statement here? my code doesn't have an initialization loop....
 			# return np.array([cur_pos[0], cur_pos[1], cur_pos[2], 0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
 
