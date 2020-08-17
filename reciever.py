@@ -27,7 +27,13 @@ class Output(asyncio.Protocol):
         try:
             if(msg==b'.'):
             # heartbeat(drone)
-                # print('hi')
+                async for pos_vel in drone.conn.telemetry.position_velocity_ned():
+                    s[0] = pos_vel.position.north_m
+                    s[1] = pos_vel.position.east_m
+                    s[2] = -pos_vel.position.down_m
+                    s[3] = pos_vel.velocity.north_m_s
+                    s[4] = pos_vel.velocity.east_m_s
+                    s[5] = -pos_vel.velocity.down_m_s     
                 
             if(((msg)[:2])==(b'OA')):
             # print((msg)[2])

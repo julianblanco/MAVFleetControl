@@ -186,7 +186,7 @@ class Quadcopter:
 			# global total_time
 			# global ts
 			# global coef
-			self.path = np.array([[cur_pos[0], cur_pos[0],       cur_pos[0] + 1.0, cur_pos[0] + 1.0, cur_pos[0],       cur_pos[0]],
+			self.path = np.array([[cur_pos[0], cur_pos[0],       cur_pos[0] + 0.01, cur_pos[0] + 1.0, cur_pos[0],       cur_pos[0]],
 							 [cur_pos[1], cur_pos[1],       cur_pos[1],       cur_pos[1] + 1.0, cur_pos[1] + 1.0, cur_pos[1]],
 							 [cur_pos[2], cur_pos[2] + 2.0, cur_pos[2] + 2.0, cur_pos[2] + 2.0, cur_pos[2] + 2.0, cur_pos[2] + 2.0]
 							 ])
@@ -216,9 +216,10 @@ class Quadcopter:
 			acc = [0.0, 0.0, 0.0]
 			# TODO: main reason for the jump right now is that there are no x-y values coming out of the optimizer
 		else:
+
 			k = (self.ts <= cur_time).nonzero()
 			k = k[-1][-1]						# TODO: maybe because of a sign error the path never iterates wpts
-
+			print(k)
 			# THESE CALCS ARE OKAY
 			pos_temp = np.array([cur_time**7, cur_time**6, cur_time**5, cur_time**4, cur_time**3, cur_time**2, cur_time, 1])
 			pos = np.matmul(pos_temp, self.coef[8*k:8*(k+1), :])
@@ -381,41 +382,48 @@ class Quadcopter:
 		:return: 1x1 desired sum of prop thrusts in body frame, 3x1 desired angular velocity in body frame
 		"""
 		# define the basic nested PID controller for the quadcopter
-		Kp_pos = np.array([15, 15, 30])
-		Kd_pos = np.array([12, 12, 10])
+		Kp_pos = np.array([2, 2, 2])
+		Kd_pos = np.array([0, 0, 0])
 
 		Kp_ang = np.ones(3)*3000
 		Kd_ang = np.ones(3)*300
-
+		print("state")
+		print(self._state)
+		print("desired state")
+		print(self._desired_state)
 		# Linear acceleration
 		acc_des = self._desired_state[6:9] + Kd_pos*(self._desired_state[3:6] - self._state[3:6]) + Kp_pos*(self._desired_state[0:3] - self._state[0:3]) 	# 3x1
-
+		print("acc_des")
+		print(acc_des)
 		# Build desired roll, pitch, and yaw
 		des_yaw = self._desired_state[9]
 		phi_des = (1/self._quad_properties["gravity"]) * (acc_des[0]*np.sin(des_yaw) - acc_des[1]*np.cos(des_yaw))
 		theta_des = (1/self._quad_properties["gravity"]) * (acc_des[0]*np.cos(des_yaw) + acc_des[1]*np.sin(des_yaw))
-		theta_des = -theta_des
+		# theta_des = -theta_des
 		# phi_des = -phi_des
 		psi_des = des_yaw
-
+		print("Desired ypt")
+		print(des_yaw)
+		print(phi_des)
+		print(theta_des)
 		euler_des = np.array([phi_des, theta_des, psi_des])
-		pqr_des = np.array([0, 0, self._desired_state[10]])
+		# pqr_des = np.array([0, 0, self._desired_state[10]])
 
-		quat = self._state[6:10] 					# 4x1
-		euler = Quadcopter.quat2euler(quat) 		# 3x1
+		# quat = self._state[6:10] 					# 4x1
+		# euler = Quadcopter.quat2euler(quat) 		# 3x1
 		# print("des yaw: ", des_yaw)
 		# print("euler: ", euler)
 
 		thrust = self._quad_properties["mass"] * (self._quad_properties["gravity"] + acc_des[2]) 		# 1x1
-		moment = np.matmul(self._quad_properties["inertia"], (Kd_ang*(pqr_des - self._state[10:13]) + Kp_ang*(euler_des - euler))) 		# 3x1
+		# moment = np.matmul(self._quad_properties["inertia"], (Kd_ang*(pqr_des - self._state[10:13]) + Kp_ang*(euler_des - euler))) 		# 3x1
 
-		forces = np.array([thrust, moment[0], moment[1]]) 					# excludes the yaw force from physical limitations
-		prop_thrust = np.matmul(self._quad_properties["limitsA"], forces) 																		# 4x1
-		prop_thrust_limited = np.maximum(np.minimum(prop_thrust, self._quad_properties["max_force"]), self._quad_properties["min_force"]) 		# 4x1
-		new_thrust = np.matmul(self._quad_properties["limitsB"][0, :], prop_thrust_limited) 													# 1x1
-		new_moment = np.append(np.matmul(self._quad_properties["limitsB"][1:3], prop_thrust_limited), moment[2]) 						# 3x1
+		# forces = np.array([thrust, moment[0], moment[1]]) 					# excludes the yaw force from physical limitations
+		# prop_thrust = np.matmul(self._quad_properties["limitsA"], forces) 																		# 4x1
+		# prop_thrust_limited = np.maximum(np.minimum(prop_thrust, self._quad_properties["max_force"]), self._quad_properties["min_force"]) 		# 4x1
+		# new_thrust = np.matmul(self._quad_properties["limitsB"][0, :], prop_thrust_limited) 													# 1x1
+		# new_moment = np.append(np.matmul(self._quad_properties["limitsB"][1:3], prop_thrust_limited), moment[2]) 						# 3x1
 
-		return new_thrust, euler_des
+		return thrust, euler_des
 
 	def equations_of_motion(self, controller_thrust, angular_force):
 		"""

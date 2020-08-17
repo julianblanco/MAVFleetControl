@@ -28,7 +28,7 @@ class MinSnap(Quadcopter):
         init_arr = np.zeros(6)
         async for pos_vel in drone.conn.telemetry.position_velocity_ned():
             init_arr[0] = pos_vel.position.north_m
-            init_arr[1] = pos_vel.position.east_m
+            init_arr[1] = -pos_vel.position.east_m
             init_arr[2] = -pos_vel.position.down_m
             break
         async for quat in drone.conn.telemetry.attitude_quaternion():
@@ -45,15 +45,16 @@ class MinSnap(Quadcopter):
         # main loop; queries sensors, runs min snap trajectory generation and position controller
         s = np.zeros(13)
         start_time = time.time()
+        cnt = 0
         while(1):
             # print("1")
             async for pos_vel in drone.conn.telemetry.position_velocity_ned():
 
                 s[0] = pos_vel.position.north_m
-                s[1] = pos_vel.position.east_m
+                s[1] = -pos_vel.position.east_m
                 s[2] = -pos_vel.position.down_m
                 s[3] = pos_vel.velocity.north_m_s
-                s[4] = pos_vel.velocity.east_m_s
+                s[4] = -pos_vel.velocity.east_m_s
                 s[5] = -pos_vel.velocity.down_m_s           # TODO: should this be negative? velocity encodes direction...
                 break
             asyncio.sleep(0.01)
@@ -66,13 +67,13 @@ class MinSnap(Quadcopter):
                 break
             asyncio.sleep(0.01)
             # # print("loop 3")
-            async for rate in drone.conn.telemetry.attitude_angular_velocity_body():
-                # loop = 1
-                s[10] = rate.roll_rad_s
-                s[11] = rate.pitch_rad_s
-                s[12] = rate.yaw_rad_s
-                    # print("loop 3")
-                break
+            # async for rate in drone.conn.telemetry.attitude_angular_velocity_body():
+            #     # loop = 1
+            #     s[10] = rate.roll_rad_s
+            #     s[11] = rate.pitch_rad_s
+            #     s[12] = rate.yaw_rad_s
+            #         # print("loop 3")
+            #     break
             asyncio.sleep(0.01)
             # print(s)
             self._state = s
@@ -100,3 +101,6 @@ class MinSnap(Quadcopter):
 
             # await drone.conn.offboard.set_attitude_rate(AttitudeRate(0.0, 0.0, 0.0, 0.5))
             asyncio.sleep(0.01)
+            # cnt +=1
+            # if cnt > 6:
+            #     break
